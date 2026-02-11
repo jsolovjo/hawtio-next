@@ -25,9 +25,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
-env:
-  HAWTIO_BRANCH: 4.x
-
 jobs:
   test:
     permissions:
@@ -73,6 +70,21 @@ jobs:
         run: yarn install
       - name: Build
         run: yarn build:all
+      - name: Determine Hawtio branch
+        id: determine-hawtio-branch
+        run: |
+          # Map hawtio-next branch to corresponding hawtio/hawtio branch
+          current_branch="${{ github.base_ref || github.ref_name }}"
+          case "$current_branch" in
+            2.x)
+              hawtio_branch="5.x"
+              ;;
+            *)
+              hawtio_branch="4.x"
+              ;;
+          esac
+          echo "HAWTIO_BRANCH=$hawtio_branch" >> $GITHUB_ENV
+          echo "Using hawtio branch: $hawtio_branch and for hawtio-next branch: $current_branch"
       - name: Start server
         run: |
           DISABLE_WS=true yarn start:app --no-color --no-hot --no-live-reload --no-client-overlay 2>&1 > log &
@@ -84,16 +96,16 @@ jobs:
         env:
           body: ${{ github.event.pull_request.body || ''}}
         run: |
-          if [[ "${body}" =~ \`branch:[[:space:]]([[:alnum:]\/_.-]+)(:([[:alnum:]\/_.-]+))?\` ]]; then
+          if [[ "${body}" =~ branch:[[:space:]]([[:alnum:]\/_.-]+)(:([[:alnum:]\/_.-]+))? ]]; then
             if [ -z "${BASH_REMATCH[2]}" ]; then
               echo "repo=hawtio/hawtio" >> $GITHUB_OUTPUT
               echo "branch=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
             else
               echo "repo=${BASH_REMATCH[1]}/hawtio" >> $GITHUB_OUTPUT
-              echo "branch=${BASH_REMATCH[2]:1}" >> $GITHUB_OUTPUT
+              echo "branch=${BASH_REMATCH[3]}" >> $GITHUB_OUTPUT
             fi
           else
-            branch=${{env.HAWTIO_BRANCH}}
+            branch="${HAWTIO_BRANCH}"
             app_image=quay.io/hawtio/hawtio-${{ matrix.runtime }}-test-app:$branch-${{ matrix.java }}
             testsuite_image=quay.io/hawtio/hawtio-test-suite:$branch-${{ matrix.java }}
 
@@ -180,6 +192,21 @@ jobs:
       actions: read
       pull-requests: write
     steps:
+      - name: Determine Hawtio branch
+        id: determine-hawtio-branch
+        run: |
+          # Map hawtio-next branch to corresponding hawtio/hawtio branch
+          current_branch="${{ github.base_ref || github.ref_name }}"
+          case "$current_branch" in
+            2.x)
+              hawtio_branch="5.x"
+              ;;
+            *)
+              hawtio_branch="4.x"
+              ;;
+          esac
+          echo "HAWTIO_BRANCH=$hawtio_branch" >> $GITHUB_ENV
+          echo "Using hawtio branch: $hawtio_branch for hawtio-next branch: $current_branch"
       - name: Archive failed test reports
         uses: actions/upload-artifact/merge@v4
         if: always()
