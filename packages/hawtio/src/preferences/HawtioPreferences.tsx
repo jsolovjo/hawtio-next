@@ -1,5 +1,5 @@
 import { helpRegistry } from '@hawtiosrc/help/registry'
-import { Divider, Nav, NavItem, NavList, PageSection, PageSectionVariants, Title } from '@patternfly/react-core'
+import { Nav, NavItem, NavList, PageSection, Title } from '@patternfly/react-core'
 import React from 'react'
 import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import help from './help.md'
@@ -15,26 +15,24 @@ export const HawtioPreferences: React.FunctionComponent = () => {
   const { pathname, search } = useLocation()
   return (
     <React.Fragment>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection hasBodyWrapper={false}>
         <Title headingLevel='h1'>Preferences</Title>
       </PageSection>
-      <Divider />
-      <PageSection type='tabs' hasShadowBottom>
-        <Nav aria-label='Nav' variant='tertiary'>
+      <PageSection type='tabs' hasBodyWrapper={false}>
+        <Nav aria-label='Preferences Nav' variant='horizontal-subnav'>
           <NavList>
-            {preferencesRegistry.getPreferences().map(prefs => (
-              <NavItem key={prefs.id} isActive={pathname === `/preferences/${prefs.id}`}>
-                <NavLink to={{ pathname: prefs.id, search }}>{prefs.title}</NavLink>
+            {preferencesRegistry.getPreferences().map(({ id, title }) => (
+              <NavItem key={id} isActive={pathname === `/preferences/${id}`}>
+                <NavLink to={{ pathname: id, search }}>{title}</NavLink>
               </NavItem>
             ))}
           </NavList>
         </Nav>
       </PageSection>
-      <Divider />
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection hasBodyWrapper={false}>
         <Routes>
-          {preferencesRegistry.getPreferences().map(prefs => (
-            <Route key={prefs.id} path={prefs.id} element={React.createElement(prefs.component)} />
+          {preferencesRegistry.getPreferences().map(({ id, component }) => (
+            <Route key={id} path={id} element={React.createElement(component)} />
           ))}
           <Route path='/' element={<Navigate to={{ pathname: 'home', search }} />} />
         </Routes>

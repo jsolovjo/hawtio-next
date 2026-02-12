@@ -1,3 +1,4 @@
+import { FilteredTable } from '@hawtiosrc/ui'
 import {
   Button,
   Card,
@@ -9,27 +10,25 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
-  Divider,
   Label,
-  Modal,
   PageSection,
   Skeleton,
   Title,
 } from '@patternfly/react-core'
+import { Modal } from '@patternfly/react-core/deprecated'
 import React, { useEffect, useRef, useState } from 'react'
 import { log } from './globals'
 import { LogEntry } from './log-entry'
 import { LOGS_UPDATE_INTERVAL, logsService } from './logs-service'
-import { FilteredTable } from '@hawtiosrc/ui'
+import './Logs.css'
 
 export const Logs: React.FunctionComponent = () => {
   return (
     <React.Fragment>
-      <PageSection id='logs-header' hasShadowBottom variant='light'>
+      <PageSection id='logs-header' hasBodyWrapper={false}>
         <Title headingLevel='h1'>Logs</Title>
       </PageSection>
-      <Divider />
-      <PageSection id='logs-table' variant='light' isFilled>
+      <PageSection id='logs-table' padding={{ default: 'noPadding' }} isFilled hasBodyWrapper={false}>
         <LogsTable />
       </PageSection>
     </React.Fragment>
@@ -109,7 +108,7 @@ const LogsTable: React.FunctionComponent = () => {
   }
 
   return (
-    <>
+    <React.Fragment>
       <LogModal isOpen={isModalOpen} onClose={handleModalToggle} log={selected} />
       <FilteredTable
         rows={rows}
@@ -162,7 +161,7 @@ const LogsTable: React.FunctionComponent = () => {
           setIsModalOpen(true)
         }}
       />
-    </>
+    </React.Fragment>
   )
 }
 
@@ -312,6 +311,6 @@ const LogLevel: React.FunctionComponent<{ level: string }> = ({ level }) => {
     case 'ERROR':
       return <Label color='red'>{level}</Label>
     default:
-      return <React.Fragment>{level}</React.Fragment>
+      return level
   }
 }

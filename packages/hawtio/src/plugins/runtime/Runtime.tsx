@@ -1,8 +1,8 @@
-import { Divider, Nav, NavItem, NavList, PageGroup, PageSection, Title } from '@patternfly/react-core'
+import { Nav, NavItem, NavList, PageGroup, PageSection, Title } from '@patternfly/react-core'
 import React from 'react'
-
 import { Navigate, NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import { Metrics } from './Metrics'
+import './Runtime.css'
 import { SysProps } from './SysProps'
 import { Threads } from './Threads'
 
@@ -11,6 +11,7 @@ type NavItem = {
   title: string
   component: JSX.Element
 }
+
 export const Runtime: React.FunctionComponent = () => {
   const { pathname, search } = useLocation()
   const navItems: NavItem[] = [
@@ -21,31 +22,26 @@ export const Runtime: React.FunctionComponent = () => {
 
   return (
     <React.Fragment>
-      <PageSection variant='light'>
+      <PageSection hasBodyWrapper={false}>
         <Title headingLevel='h1'>Runtime</Title>
       </PageSection>
       <PageGroup>
-        <Divider />
-        <PageSection type='tabs' hasShadowBottom>
-          <Nav aria-label='Runtime Nav' variant='tertiary'>
+        <PageSection type='tabs' hasBodyWrapper={false}>
+          <Nav aria-label='Runtime Nav' variant='horizontal-subnav'>
             <NavList>
-              {navItems.map(navItem => (
-                <NavItem key={navItem.id} isActive={pathname === `/runtime/${navItem.id}`}>
-                  <NavLink to={{ pathname: navItem.id, search }}>{navItem.title}</NavLink>
+              {navItems.map(({ id, title }) => (
+                <NavItem key={id} isActive={pathname === `/runtime/${id}`}>
+                  <NavLink to={{ pathname: id, search }}>{title}</NavLink>
                 </NavItem>
               ))}
             </NavList>
           </Nav>
         </PageSection>
       </PageGroup>
-      <Divider />
-      <PageSection
-        variant={pathname.includes('metrics') ? 'default' : 'light'}
-        padding={{ default: pathname.includes('metrics') ? 'padding' : 'noPadding' }}
-      >
+      <PageSection padding={{ default: 'noPadding' }} hasBodyWrapper={false}>
         <Routes>
-          {navItems.map(navItem => (
-            <Route key={navItem.id} path={navItem.id} element={navItem.component} />
+          {navItems.map(({ id, component }) => (
+            <Route key={id} path={id} element={component} />
           ))}
           <Route path='/' element={<Navigate to={{ pathname: 'sysprops', search }} />} />
         </Routes>

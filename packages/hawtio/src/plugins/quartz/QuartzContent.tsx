@@ -1,19 +1,15 @@
 import { Attributes, Operations } from '@hawtiosrc/plugins/shared'
 import {
-  Divider,
+  Content,
   EmptyState,
   EmptyStateBody,
-  EmptyStateIcon,
+  EmptyStateFooter,
   Nav,
   NavItem,
   NavList,
   PageGroup,
   PageSection,
-  PageSectionVariants,
-  Text,
   Title,
-  EmptyStateHeader,
-  EmptyStateFooter,
 } from '@patternfly/react-core'
 import { CubesIcon } from '@patternfly/react-icons/dist/esm/icons/cubes-icon'
 import React, { useContext } from 'react'
@@ -31,27 +27,16 @@ export const QuartzContent: React.FunctionComponent = () => {
 
   if (tree.isEmpty()) {
     return (
-      <PageSection variant='light'>
-        <EmptyState variant='full'>
-          <EmptyStateHeader
-            titleText='No Quartz schedulers found'
-            icon={<EmptyStateIcon icon={CubesIcon} />}
-            headingLevel='h1'
-          />
-        </EmptyState>
+      <PageSection hasBodyWrapper={false}>
+        <EmptyState headingLevel='h1' icon={CubesIcon} titleText='No Quartz schedulers found' variant='full' />
       </PageSection>
     )
   }
 
   if (!selectedNode) {
     return (
-      <PageSection variant='light'>
-        <EmptyState variant='full'>
-          <EmptyStateHeader
-            titleText='No scheduler selected'
-            icon={<EmptyStateIcon icon={CubesIcon} />}
-            headingLevel='h1'
-          />
+      <PageSection hasBodyWrapper={false}>
+        <EmptyState headingLevel='h1' icon={CubesIcon} titleText='No scheduler selected' variant='full'>
           <EmptyStateBody>
             The Quartz plugin allows you to see details about running Quartz Schedulers, and their associated triggers
             and jobs.
@@ -73,7 +58,7 @@ export const QuartzContent: React.FunctionComponent = () => {
   ]
 
   const nav = (
-    <Nav aria-label='Quartz Nav' variant='tertiary'>
+    <Nav aria-label='Quartz Nav' variant='horizontal-subnav'>
       <NavList>
         {navItems.map(nav => (
           <NavItem key={nav.id} isActive={pathname === `${pluginPath}/${nav.id}`}>
@@ -88,22 +73,20 @@ export const QuartzContent: React.FunctionComponent = () => {
 
   return (
     <PageGroup id='quartz-content'>
-      <PageSection id='quartz-content-header' variant={PageSectionVariants.light}>
+      <PageSection id='quartz-content-header' hasBodyWrapper={false}>
         <Title headingLevel='h1'>{selectedNode.name}</Title>
-        <Text component='small'>{selectedNode.objectName}</Text>
+        <Content component='small'>{selectedNode.objectName}</Content>
       </PageSection>
-      <Divider />
-      <PageSection type='tabs' hasShadowBottom>
+      <PageSection hasBodyWrapper={false} type='tabs'>
         {nav}
       </PageSection>
-      <Divider />
 
       <PageSection
-        variant='light'
         id='quartz-content-main'
         padding={{ default: 'noPadding' }}
         hasOverflowScroll
         aria-label='quartz-content-main'
+        hasBodyWrapper={false}
       >
         <Routes>
           {routes}

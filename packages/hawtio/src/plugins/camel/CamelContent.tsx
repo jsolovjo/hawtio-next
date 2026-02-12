@@ -1,20 +1,6 @@
 import { eventService } from '@hawtiosrc/core'
 import { AttributeValues, Attributes, Chart, JmxContentMBeans, MBeanNode, Operations } from '@hawtiosrc/plugins/shared'
-import {
-  Divider,
-  EmptyState,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  EmptyStateVariant,
-  Nav,
-  NavItem,
-  NavList,
-  PageGroup,
-  PageSection,
-  PageSectionVariants,
-  Text,
-  Title,
-} from '@patternfly/react-core'
+import { Content, EmptyState, Nav, NavItem, NavList, PageGroup, PageSection, Title } from '@patternfly/react-core'
 import { CubesIcon } from '@patternfly/react-icons/dist/esm/icons/cubes-icon'
 import Jolokia, { JolokiaErrorResponse, JolokiaFetchErrorResponse, JolokiaSuccessResponse } from 'jolokia.js'
 import React, { useContext, useEffect, useState } from 'react'
@@ -56,27 +42,9 @@ export const CamelContent: React.FunctionComponent = () => {
 
   if (!selectedNode) {
     return (
-      <PageSection variant={PageSectionVariants.light} isFilled>
-        <EmptyState variant={EmptyStateVariant.full}>
-          <EmptyStateHeader
-            titleText='Select Camel Node'
-            icon={<EmptyStateIcon icon={CubesIcon} />}
-            headingLevel='h1'
-          />
-        </EmptyState>
+      <PageSection hasBodyWrapper={false} isFilled>
+        <EmptyState headingLevel='h1' icon={CubesIcon} titleText='Select Camel Node' variant='full' />
       </PageSection>
-    )
-  }
-
-  /*
-   * Test if nav should contain general mbean tabs
-   */
-  const isDefaultApplicable = (node: MBeanNode) => {
-    return (
-      camelService.hasMBean(node) &&
-      !camelService.isContextsFolder(node) &&
-      !camelService.isRoutesFolder(node) &&
-      !camelService.isRouteXmlNode(node)
     )
   }
 
@@ -93,8 +61,8 @@ export const CamelContent: React.FunctionComponent = () => {
       ),
       isApplicable: camelService.canViewRouteDiagram,
     },
-    { id: 'attributes', title: 'Attributes', component: <Attributes />, isApplicable: isDefaultApplicable },
-    { id: 'operations', title: 'Operations', component: <Operations />, isApplicable: isDefaultApplicable },
+    { id: 'attributes', title: 'Attributes', component: <Attributes />, isApplicable: camelService.isBasicMBeanNode },
+    { id: 'operations', title: 'Operations', component: <Operations />, isApplicable: camelService.isBasicMBeanNode },
     { id: 'contexts', title: 'Contexts', component: <Contexts />, isApplicable: camelService.isContextsFolder },
     { id: 'routes', title: 'Routes', component: <CamelRoutes />, isApplicable: camelService.isRoutesFolder },
     { id: 'endpoints', title: 'Endpoints', component: <Endpoints />, isApplicable: camelService.isEndpointsFolder },
@@ -136,7 +104,7 @@ export const CamelContent: React.FunctionComponent = () => {
       component: <TypeConverters />,
       isApplicable: camelService.hasTypeConverter,
     },
-    { id: 'chart', title: 'Chart', component: <Chart />, isApplicable: isDefaultApplicable },
+    { id: 'chart', title: 'Chart', component: <Chart />, isApplicable: camelService.isBasicMBeanNode },
     // Applicable for same criteria as trace
     { id: 'profile', title: 'Profile', component: <Profile />, isApplicable: camelService.canTrace },
     { id: 'trace', title: 'Trace', component: <Trace />, isApplicable: camelService.canTrace },
@@ -147,7 +115,7 @@ export const CamelContent: React.FunctionComponent = () => {
   const navItems = allNavItems.filter(nav => nav.isApplicable(selectedNode))
 
   const camelNav = (
-    <Nav aria-label='Camel Nav' variant='tertiary'>
+    <Nav aria-label='Camel Nav' variant='horizontal-subnav'>
       <NavList>
         {navItems.map(nav => (
           <NavItem key={nav.id} isActive={pathname === `${pluginPath}/${nav.id}`}>
@@ -162,21 +130,19 @@ export const CamelContent: React.FunctionComponent = () => {
 
   return (
     <PageGroup id='camel-content'>
-      <PageSection id='camel-content-header' variant={PageSectionVariants.light}>
+      <PageSection id='camel-content-header' hasBodyWrapper={false}>
         {camelService.isContext(selectedNode) && <CamelContentContextToolbar />}
         <Title headingLevel='h1'>{selectedNode.name}</Title>
-        {selectedNode.objectName && <Text component='small'>{selectedNode.objectName}</Text>}
+        {selectedNode.objectName && <Content component='small'>{selectedNode.objectName}</Content>}
       </PageSection>
-      <Divider />
       {navItems.length > 1 && (
-        <PageSection type={'tabs'} variant={PageSectionVariants.light} hasShadowBottom>
+        <PageSection type='tabs' hasBodyWrapper={false}>
           {camelNav}
         </PageSection>
       )}
-      <Divider />
       <PageSection
         id='camel-content-main'
-        variant={PageSectionVariants.light}
+        hasBodyWrapper={false}
         padding={{ default: 'noPadding' }}
         hasOverflowScroll
         aria-label='camel-content-main'

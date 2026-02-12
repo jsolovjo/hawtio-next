@@ -1,3 +1,5 @@
+import { useHawtconfig } from '@hawtiosrc/core'
+import { HawtioLoadingPage } from '@hawtiosrc/ui'
 import {
   Alert,
   Button,
@@ -8,15 +10,12 @@ import {
   FormSection,
   HelperText,
   HelperTextItem,
-  Modal,
-  ModalVariant,
   Switch,
 } from '@patternfly/react-core'
+import { Modal, ModalVariant } from '@patternfly/react-core/deprecated'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { preferencesService } from './preferences-service'
-import { useHawtconfig } from '@hawtiosrc/core'
-import { HawtioLoadingPage } from '@hawtiosrc/ui'
 
 export const HomePreferences: React.FunctionComponent = () => {
   const { hawtconfig, hawtconfigLoaded } = useHawtconfig()
@@ -54,7 +53,6 @@ const UIForm: React.FunctionComponent = () => {
       <Switch
         data-testid='switch-vertical-nav-state'
         label='Show vertical navigation'
-        labelOff='Hide vertical navigation'
         isChecked={showVerticalNav}
         onChange={(_event, value: boolean) => handleShowVerticalNavChange(value)}
       />

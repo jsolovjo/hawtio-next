@@ -1,25 +1,21 @@
+import { pluginPath } from '@hawtiosrc/plugins/jmx/globals'
 import { AttributeTable, Attributes, Chart, JmxContentMBeans, MBeanNode, Operations } from '@hawtiosrc/plugins/shared'
 import {
-  Divider,
+  Content,
   EmptyState,
-  EmptyStateIcon,
   EmptyStateVariant,
   Nav,
   NavItem,
   NavList,
   PageGroup,
   PageSection,
-  PageSectionVariants,
-  Text,
   Title,
-  EmptyStateHeader,
 } from '@patternfly/react-core'
 import { CubesIcon } from '@patternfly/react-icons/dist/esm/icons/cubes-icon'
 import React, { useContext } from 'react'
 import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import './JmxContent.css'
 import { MBeanTreeContext } from './context'
-import { pluginPath } from '@hawtiosrc/plugins/jmx/globals'
 
 export const JmxContent: React.FunctionComponent = () => {
   const { selectedNode } = useContext(MBeanTreeContext)
@@ -27,10 +23,13 @@ export const JmxContent: React.FunctionComponent = () => {
 
   if (!selectedNode) {
     return (
-      <PageSection variant={PageSectionVariants.light} isFilled>
-        <EmptyState variant={EmptyStateVariant.full}>
-          <EmptyStateHeader titleText='Select MBean' icon={<EmptyStateIcon icon={CubesIcon} />} headingLevel='h1' />
-        </EmptyState>
+      <PageSection hasBodyWrapper={false} isFilled>
+        <EmptyState
+          headingLevel='h1'
+          icon={CubesIcon}
+          titleText='Select MBean'
+          variant={EmptyStateVariant.full}
+        ></EmptyState>
       </PageSection>
     )
   }
@@ -39,10 +38,9 @@ export const JmxContent: React.FunctionComponent = () => {
   const mBeanCollectionApplicable = (node: MBeanNode) => Boolean(node.children?.every(child => child.objectName))
   const hasAnyApplicableMBean = (node: MBeanNode) =>
     Boolean(node.objectName) || Boolean(node.children?.some(child => child.objectName))
-  const ALWAYS = (node: MBeanNode) => true
 
-  const tableSelector: (node: MBeanNode) => React.FunctionComponent = (node: MBeanNode) => {
-    const tablePriorityList: { condition: (node: MBeanNode) => boolean; element: React.FunctionComponent }[] = [
+  const tableSelector = (node: MBeanNode) => {
+    const tablePriorityList = [
       { condition: mBeanApplicable, element: Attributes },
       { condition: mBeanCollectionApplicable, element: AttributeTable },
     ]
@@ -51,7 +49,7 @@ export const JmxContent: React.FunctionComponent = () => {
   }
 
   const allNavItems = [
-    { id: 'attributes', title: 'Attributes', component: tableSelector(selectedNode), isApplicable: ALWAYS },
+    { id: 'attributes', title: 'Attributes', component: tableSelector(selectedNode), isApplicable: () => true },
     { id: 'operations', title: 'Operations', component: Operations, isApplicable: mBeanApplicable },
     { id: 'chart', title: 'Chart', component: Chart, isApplicable: hasAnyApplicableMBean },
   ]
@@ -60,7 +58,7 @@ export const JmxContent: React.FunctionComponent = () => {
   const navItems = allNavItems.filter(nav => nav.isApplicable(selectedNode))
 
   const mbeanNav = (
-    <Nav aria-label='MBean Nav' variant='tertiary'>
+    <Nav aria-label='MBean Nav' variant='horizontal-subnav'>
       <NavList>
         {navItems.map(nav => (
           <NavItem key={nav.id} isActive={pathname === `${pluginPath}/${nav.id}`}>
@@ -77,21 +75,19 @@ export const JmxContent: React.FunctionComponent = () => {
 
   return (
     <PageGroup id='jmx-content'>
-      <PageSection id='jmx-content-header' variant={PageSectionVariants.light}>
+      <PageSection id='jmx-content-header' hasBodyWrapper={false}>
         <Title headingLevel='h1'>{selectedNode.name}</Title>
-        <Text component='small'>{selectedNode.objectName}</Text>
+        <Content component='small'>{selectedNode.objectName}</Content>
       </PageSection>
-      <Divider />
-      <PageSection type='tabs' variant={PageSectionVariants.light} hasShadowBottom>
+      <PageSection type='tabs' hasBodyWrapper={false}>
         {mbeanNav}
       </PageSection>
-      <Divider />
       <PageSection
         id='jmx-content-main'
-        variant={PageSectionVariants.light}
         padding={{ default: 'noPadding' }}
         hasOverflowScroll
         aria-label='jmx-content-main'
+        hasBodyWrapper={false}
       >
         <Routes>
           {mbeanRoutes}
